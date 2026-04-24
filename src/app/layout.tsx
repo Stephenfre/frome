@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 
 import ConvexClientProvider from "@/components/providers/convex-client-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 
 import "./globals.css";
 
@@ -16,13 +17,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body
         suppressHydrationWarning
         className="min-h-full bg-background text-foreground"
       >
         <ClerkProvider>
-          <ConvexClientProvider>{children}</ConvexClientProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ConvexClientProvider>{children}</ConvexClientProvider>
+          </ThemeProvider>
         </ClerkProvider>
       </body>
     </html>

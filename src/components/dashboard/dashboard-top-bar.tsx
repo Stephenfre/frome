@@ -3,6 +3,7 @@ import { Bell, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function DashboardTopBar() {
   return (
@@ -21,6 +22,7 @@ export function DashboardTopBar() {
         </div>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <Button size="icon" variant="ghost" aria-label="Notifications">
             <Bell className="size-4" aria-hidden="true" />
           </Button>
