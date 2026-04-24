@@ -7,6 +7,41 @@ const eventTypeValidator = v.union(
   v.literal("reset"),
 );
 
+const goalCategoryValidator = v.union(
+  v.literal("career"),
+  v.literal("finance"),
+  v.literal("health"),
+  v.literal("fitness"),
+  v.literal("relationships"),
+  v.literal("personal"),
+  v.literal("learning"),
+  v.literal("other"),
+);
+
+const goalStatusValidator = v.union(
+  v.literal("active"),
+  v.literal("paused"),
+  v.literal("completed"),
+  v.literal("archived"),
+);
+
+const goalHorizonValidator = v.union(
+  v.literal("weekly"),
+  v.literal("monthly"),
+  v.literal("quarterly"),
+);
+
+const goalProjectStatusValidator = v.union(
+  v.literal("active"),
+  v.literal("completed"),
+  v.literal("archived"),
+);
+
+const projectNextActionStatusValidator = v.union(
+  v.literal("todo"),
+  v.literal("done"),
+);
+
 export default defineSchema({
   users: defineTable({
     clerkUserId: v.string(),
@@ -125,4 +160,67 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_user_date", ["userId", "date"]),
+
+  goals: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    category: goalCategoryValidator,
+    status: goalStatusValidator,
+    horizon: goalHorizonValidator,
+    startDate: v.optional(v.number()),
+    targetDate: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_and_status", ["userId", "status"]),
+
+  goalProjects: defineTable({
+    userId: v.id("users"),
+    goalId: v.id("goals"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    status: goalProjectStatusValidator,
+    order: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_goal", ["goalId"])
+    .index("by_goal_and_status", ["goalId", "status"])
+    .index("by_user_and_status", ["userId", "status"]),
+
+  projectNextActions: defineTable({
+    userId: v.id("users"),
+    projectId: v.id("goalProjects"),
+    title: v.string(),
+    status: projectNextActionStatusValidator,
+    estimatedMinutes: v.union(
+      v.literal(2),
+      v.literal(5),
+      v.literal(10),
+      v.literal(15),
+      v.literal(30),
+    ),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_project", ["projectId"])
+    .index("by_project_and_status", ["projectId", "status"])
+    .index("by_user", ["userId"])
+    .index("by_user_and_status", ["userId", "status"]),
+
+  goalReviews: defineTable({
+    userId: v.id("users"),
+    goalId: v.id("goals"),
+    reviewType: v.union(v.literal("daily"), v.literal("weekly")),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_goal", ["goalId"])
+    .index("by_user_and_goal", ["userId", "goalId"])
+    .index("by_user_and_goal_and_review_type", ["userId", "goalId", "reviewType"]),
 });

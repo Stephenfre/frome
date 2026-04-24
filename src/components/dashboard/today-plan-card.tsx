@@ -13,7 +13,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   formatDayLabel,
@@ -214,12 +214,26 @@ function TodayPlanEventRow({ event }: { event: EventView }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [now, setNow] = useState<number | null>(null);
   const eventEndTime = Date.parse(event.endAt ?? event.startAt);
-  const isPast = !Number.isNaN(eventEndTime) && eventEndTime <= Date.now();
+  const isPast = now !== null && !Number.isNaN(eventEndTime) && eventEndTime <= now;
   const timeLabel = new Intl.DateTimeFormat(undefined, {
     hour: "numeric",
     minute: "2-digit",
   }).format(new Date(event.startAt));
+
+  useEffect(() => {
+    const updateNow = () => {
+      setNow(Date.now());
+    };
+
+    updateNow();
+    const intervalId = window.setInterval(updateNow, 60_000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   async function handleDelete() {
     if (isDeleting) {

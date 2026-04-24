@@ -23,7 +23,7 @@ const navItems = [
   { label: "Tasks", href: "/dashboard/tasks", icon: CheckCircle2 },
   { label: "Calendar", href: "/dashboard/events", icon: CalendarDays },
   { label: "Money", href: "/dashboard", icon: CircleDollarSign },
-  { label: "Goals", href: "/dashboard", icon: Goal },
+  { label: "Goals", href: "/dashboard/goals", icon: Goal },
 ];
 
 export function DashboardSidebar({

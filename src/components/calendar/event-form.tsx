@@ -182,7 +182,10 @@ export function EventForm({
   const [customRecurrenceConfig, setCustomRecurrenceConfig] =
     useState<CustomRecurrenceConfig>(() =>
       initialEvent?.isRecurring
-        ? parseCustomRecurrenceConfig(initialEvent.recurrenceRule, initialStartAt)
+        ? parseCustomRecurrenceConfig(
+            initialEvent.recurrenceRule,
+            initialStartAt,
+          )
         : getDefaultCustomRecurrenceConfig(initialStartAt),
     );
   const yearlyDayOptions = getAllowedDaysForMonth(
@@ -331,7 +334,9 @@ export function EventForm({
         setNotes("");
         setReminderMinutesBefore("none");
         setRecurrencePreset("none");
-        setCustomRecurrenceConfig(getDefaultCustomRecurrenceConfig(nextStartAt));
+        setCustomRecurrenceConfig(
+          getDefaultCustomRecurrenceConfig(nextStartAt),
+        );
       }
 
       onSuccess?.();
@@ -842,7 +847,11 @@ export function EventForm({
               {customRecurrenceConfig.yearlyMode === "each" ? (
                 <div className="grid gap-2">
                   <span className="text-xs font-medium text-muted-foreground">
-                    Days in {repeatMonthOptions[customRecurrenceConfig.yearlyMonth - 1]?.label}
+                    Days in{" "}
+                    {
+                      repeatMonthOptions[customRecurrenceConfig.yearlyMonth - 1]
+                        ?.label
+                    }
                   </span>
                   <div className="grid grid-cols-7 gap-2">
                     {yearlyDayOptions.map((day) => {

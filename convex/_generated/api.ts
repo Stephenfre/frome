@@ -11,6 +11,10 @@
 import type * as dailyBriefs from "../dailyBriefs.js";
 import type * as dashboard from "../dashboard.js";
 import type * as events from "../events.js";
+import type * as goalProjects from "../goalProjects.js";
+import type * as goals from "../goals.js";
+import type * as goalsHelpers from "../goalsHelpers.js";
+import type * as projectNextActions from "../projectNextActions.js";
 import type * as projects from "../projects.js";
 import type * as taskGroups from "../taskGroups.js";
 import type * as tasks from "../tasks.js";
@@ -27,6 +31,10 @@ const fullApi: ApiFromModules<{
   dailyBriefs: typeof dailyBriefs;
   dashboard: typeof dashboard;
   events: typeof events;
+  goalProjects: typeof goalProjects;
+  goals: typeof goals;
+  goalsHelpers: typeof goalsHelpers;
+  projectNextActions: typeof projectNextActions;
   projects: typeof projects;
   taskGroups: typeof taskGroups;
   tasks: typeof tasks;

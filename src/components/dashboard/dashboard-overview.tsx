@@ -2,10 +2,11 @@
 
 import { SignInButton } from "@clerk/nextjs";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
-import { CircleDollarSign, Goal } from "lucide-react";
+import { CircleDollarSign } from "lucide-react";
 
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { DailyBriefCard } from "@/components/dashboard/daily-brief-card";
+import { GoalsSummaryCard } from "@/components/dashboard/goals-summary-card";
 import { TasksCard } from "@/components/dashboard/tasks-card";
 import { TodayPlanCard } from "@/components/dashboard/today-plan-card";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,7 @@ function AuthenticatedDashboardOverview() {
         <DailyBriefCard />
         <TasksCard />
         <TodayPlanCard />
+        <GoalsSummaryCard />
         <DashboardCard
           title="Money"
           description="Financial snapshot"
@@ -62,17 +64,6 @@ function AuthenticatedDashboardOverview() {
           />
         </DashboardCard>
 
-        <DashboardCard
-          title="Goals"
-          description="Weekly focus"
-          icon={Goal}
-          contentClassName="pt-0"
-        >
-          <PlaceholderState
-            title="No weekly goals yet."
-            description="Track larger outcomes here once goal planning is connected."
-          />
-        </DashboardCard>
       </section>
     </div>
   );
