@@ -8,12 +8,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 type DashboardCardProps = {
   title: string;
   description: string;
   icon: LucideIcon;
   children: ReactNode;
+  className?: string;
+  contentClassName?: string;
 };
 
 export function DashboardCard({
@@ -21,9 +24,11 @@ export function DashboardCard({
   description,
   icon: Icon,
   children,
+  className,
+  contentClassName,
 }: DashboardCardProps) {
   return (
-    <Card className="rounded-lg shadow-none">
+    <Card className={cn("rounded-lg shadow-none", className)}>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div>
           <CardTitle className="text-base">{title}</CardTitle>
@@ -33,7 +38,7 @@ export function DashboardCard({
           <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
         </span>
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <CardContent className={contentClassName}>{children}</CardContent>
     </Card>
   );
 }

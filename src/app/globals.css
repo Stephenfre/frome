@@ -132,63 +132,11 @@
 }
 
 @layer components {
-  .forme-datepicker {
-    @apply rounded-lg border-border bg-background font-sans text-foreground shadow-lg;
+  .forme-calendar-event-day {
+    @apply relative font-semibold text-foreground;
   }
 
-  .forme-datepicker-inline {
-    @apply w-full border-0 shadow-none;
-  }
-
-  .forme-datepicker .react-datepicker__month-container {
-    @apply w-full;
-  }
-
-  .forme-datepicker .react-datepicker__header {
-    @apply border-border bg-muted/40;
-  }
-
-  .forme-datepicker .react-datepicker__current-month,
-  .forme-datepicker .react-datepicker-time__header,
-  .forme-datepicker .react-datepicker-year-header {
-    @apply text-sm font-semibold text-foreground;
-  }
-
-  .forme-datepicker .react-datepicker__day-name,
-  .forme-datepicker .react-datepicker__day,
-  .forme-datepicker .react-datepicker__time-name {
-    @apply text-muted-foreground;
-  }
-
-  .forme-datepicker .react-datepicker__day--selected,
-  .forme-datepicker .react-datepicker__day--keyboard-selected,
-  .forme-datepicker .react-datepicker__day--range-start,
-  .forme-datepicker .react-datepicker__day--range-end,
-  .forme-datepicker .react-datepicker__time-list-item--selected {
-    @apply bg-foreground text-background;
-  }
-
-  .forme-datepicker .react-datepicker__day--in-range,
-  .forme-datepicker .react-datepicker__day--in-selecting-range {
-    @apply bg-muted text-foreground;
-  }
-
-  .forme-datepicker .react-datepicker__day:hover,
-  .forme-datepicker .react-datepicker__time-list-item:hover {
-    @apply bg-muted text-foreground;
-  }
-
-  .forme-datepicker .react-datepicker__time-container,
-  .forme-datepicker .react-datepicker__time,
-  .forme-datepicker .react-datepicker__time-box {
-    @apply border-border bg-background;
-  }
-
-  .forme-datepicker .forme-event-day {
-    @apply font-semibold text-foreground;
-  }
-
-  .forme-datepicker .forme-event-day::after {
+  .forme-calendar-event-day button::after {
     @apply absolute bottom-1 left-1/2 size-1 -translate-x-1/2 rounded-full bg-current content-[''];
   }
 

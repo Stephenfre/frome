@@ -9,50 +9,14 @@ import { getTimestampFromLocalDateInput } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
-
-type TaskUrgency = "must_today" | "should_today" | "can_wait";
-type EstimatedMinutes = 5 | 10 | 15 | 30;
-
-const urgencies: Array<{ label: string; value: TaskUrgency }> = [
-  { label: "Must today", value: "must_today" },
-  { label: "Should today", value: "should_today" },
-  { label: "Can wait", value: "can_wait" },
-];
-
-const estimateOptions: EstimatedMinutes[] = [5, 10, 15, 30];
-
-const vagueTitles = new Set([
-  "clean kitchen",
-  "taxes",
-  "portfolio",
-  "budget",
-  "fix finances",
-  "work on portfolio",
-]);
-
-const actionVerbs = [
-  "add",
-  "book",
-  "call",
-  "check",
-  "clear",
-  "download",
-  "email",
-  "file",
-  "find",
-  "open",
-  "pay",
-  "pick",
-  "put",
-  "read",
-  "reply",
-  "schedule",
-  "send",
-  "sort",
-  "text",
-  "wipe",
-  "write",
-];
+import {
+  estimateOptions,
+  getVagueTitleWarning,
+  parseTags,
+  urgencies,
+  type EstimatedMinutes,
+  type TaskUrgency,
+} from "@/components/tasks/task-form-utils";
 
 type AddTaskFormProps = {
   defaultScheduledForToday?: boolean;
@@ -320,35 +284,4 @@ export function AddTaskForm({
       <p className="min-h-5 text-xs text-destructive">{error}</p>
     </form>
   );
-}
-
-function getVagueTitleWarning(title: string) {
-  const normalizedTitle = title
-    .trim()
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, " ");
-
-  if (!normalizedTitle) {
-    return null;
-  }
-
-  const firstWord = normalizedTitle.split(" ")[0];
-
-  if (vagueTitles.has(normalizedTitle) || !actionVerbs.includes(firstWord)) {
-    return "Try making this a visible next step, like 'Open tax folder'.";
-  }
-
-  return null;
-}
-
-function parseTags(value: string) {
-  return Array.from(
-    new Set(
-      value
-        .split(",")
-        .map((tag) => tag.trim().replace(/^#+/, "").toLowerCase())
-        .filter(Boolean),
-    ),
-  ).slice(0, 8);
 }

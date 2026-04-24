@@ -1,9 +1,27 @@
 "use client";
 
 import { useMutation } from "convex/react";
-import { CalendarMinus, CalendarPlus, Check, RotateCcw } from "lucide-react";
+import {
+  CalendarMinus,
+  CalendarPlus,
+  Check,
+  RotateCcw,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 
+import { EditTaskSheet } from "@/components/tasks/edit-task-sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { formatTaskDueDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
@@ -38,8 +56,10 @@ export function TaskRow({
   const toggleScheduledForToday = useMutation(
     api.tasks.toggleScheduledForToday,
   );
+  const deleteTask = useMutation(api.tasks.deleteTask);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isScheduling, setIsScheduling] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const isDone = task.status === "done";
 
   async function handleStatusChange() {
@@ -74,6 +94,20 @@ export function TaskRow({
       });
     } finally {
       setIsScheduling(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (isDeleting) {
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      await deleteTask({ taskId: task._id });
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -150,23 +184,53 @@ export function TaskRow({
         </div>
       </div>
 
-      {scheduleAction ? (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={handleScheduleChange}
-          disabled={isScheduling}
-          className="col-span-2 justify-self-end sm:col-span-1"
-        >
-          {scheduleAction === "add" ? (
-            <CalendarPlus className="size-3.5" aria-hidden="true" />
-          ) : (
-            <CalendarMinus className="size-3.5" aria-hidden="true" />
-          )}
-          {scheduleAction === "add" ? "Today" : "Backlog"}
-        </Button>
-      ) : null}
+      <div className="col-span-2 flex flex-wrap items-center justify-self-end sm:col-span-1">
+        {scheduleAction ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleScheduleChange}
+            disabled={isScheduling}
+          >
+            {scheduleAction === "add" ? (
+              <CalendarPlus className="size-3.5" aria-hidden="true" />
+            ) : (
+              <CalendarMinus className="size-3.5" aria-hidden="true" />
+            )}
+            {scheduleAction === "add" ? "Today" : "Backlog"}
+          </Button>
+        ) : null}
+        <EditTaskSheet task={task} />
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              disabled={isDeleting}
+              aria-label={`Delete ${task.title}`}
+              className="text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 className="size-3.5" aria-hidden="true" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete task?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Delete &quot;{task.title}&quot;? This can&apos;t be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                {isDeleting ? "Deleting..." : "Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </div>
   );
 }

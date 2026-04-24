@@ -9,6 +9,7 @@
  */
 
 import type * as dailyBriefs from "../dailyBriefs.js";
+import type * as dashboard from "../dashboard.js";
 import type * as events from "../events.js";
 import type * as projects from "../projects.js";
 import type * as taskGroups from "../taskGroups.js";
@@ -24,6 +25,7 @@ import { anyApi, componentsGeneric } from "convex/server";
 
 const fullApi: ApiFromModules<{
   dailyBriefs: typeof dailyBriefs;
+  dashboard: typeof dashboard;
   events: typeof events;
   projects: typeof projects;
   taskGroups: typeof taskGroups;

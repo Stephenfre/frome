@@ -385,6 +385,24 @@ export const updateTask = mutation({
   },
 });
 
+export const deleteTask = mutation({
+  args: {
+    taskId: v.id("tasks"),
+  },
+  handler: async (ctx, args) => {
+    const user = await getOrCreateCurrentUser(ctx);
+    const task = await ctx.db.get(args.taskId);
+
+    if (!task || task.userId !== user._id) {
+      throw new Error("Task not found.");
+    }
+
+    await ctx.db.delete(args.taskId);
+
+    return task._id;
+  },
+});
+
 export const completeTask = mutation({
   args: {
     taskId: v.id("tasks"),

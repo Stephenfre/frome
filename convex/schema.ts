@@ -1,6 +1,12 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+const eventTypeValidator = v.union(
+  v.literal("fixed"),
+  v.literal("anchor"),
+  v.literal("reset"),
+);
+
 export default defineSchema({
   users: defineTable({
     clerkUserId: v.string(),
@@ -74,20 +80,35 @@ export default defineSchema({
   events: defineTable({
     userId: v.id("users"),
     title: v.string(),
-    startsAt: v.string(),
-    endsAt: v.optional(v.string()),
+    type: v.optional(eventTypeValidator),
+    startAt: v.optional(v.string()),
+    endAt: v.optional(v.string()),
+    color: v.optional(v.string()),
     location: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    reminderMinutesBefore: v.optional(v.number()),
+    isRecurring: v.optional(v.boolean()),
+    recurrenceRule: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+
+    // Deprecated fields kept optional during the calendar model migration.
+    startsAt: v.optional(v.string()),
+    endsAt: v.optional(v.string()),
     locationName: v.optional(v.string()),
     locationAddress: v.optional(v.string()),
     placeId: v.optional(v.string()),
     latitude: v.optional(v.number()),
     longitude: v.optional(v.number()),
-    notes: v.optional(v.string()),
-    createdAt: v.number(),
-    updatedAt: v.number(),
   })
     .index("by_user", ["userId"])
-    .index("by_user_starts_at", ["userId", "startsAt"]),
+    .index("by_user_and_type", ["userId", "type"])
+    .index("by_user_and_type_and_is_recurring", [
+      "userId",
+      "type",
+      "isRecurring",
+    ])
+    .index("by_user_and_start_at", ["userId", "startAt"]),
 
   dailyBriefs: defineTable({
     userId: v.id("users"),

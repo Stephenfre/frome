@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import "react-datepicker/dist/react-datepicker.css";
 
 import ConvexClientProvider from "@/components/providers/convex-client-provider";
 
@@ -18,7 +17,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full bg-background text-foreground">
+      <body
+        suppressHydrationWarning
+        className="min-h-full bg-background text-foreground"
+      >
         <ClerkProvider>
           <ConvexClientProvider>{children}</ConvexClientProvider>
         </ClerkProvider>
