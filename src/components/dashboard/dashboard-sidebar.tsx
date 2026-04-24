@@ -15,6 +15,12 @@ import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -88,33 +94,55 @@ export function DashboardSidebar({
 
         <Separator className="my-5" />
 
-        <nav className="grid gap-1">
-          {navItems.map((item) => {
-            const isActive =
-              item.label === "Dashboard"
-                ? pathname === item.href
-                : item.href !== "/dashboard" &&
-                  (pathname === item.href ||
-                    pathname.startsWith(`${item.href}/`));
+        <TooltipProvider delayDuration={120}>
+          <nav className="grid gap-1">
+            {navItems.map((item) => {
+              const isActive =
+                item.label === "Dashboard"
+                  ? pathname === item.href
+                  : item.href !== "/dashboard" &&
+                    (pathname === item.href ||
+                      pathname.startsWith(`${item.href}/`));
 
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                aria-label={item.label}
-                title={isCollapsed ? item.label : undefined}
-                className={cn(
-                  "flex h-10 items-center rounded-lg text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-                  isActive && "bg-muted text-foreground",
-                  isCollapsed ? "justify-center px-0" : "gap-3 px-3",
-                )}
-              >
-                <item.icon className="size-4 shrink-0" aria-hidden="true" />
-                {!isCollapsed ? item.label : <span className="sr-only">{item.label}</span>}
-              </Link>
-            );
-          })}
-        </nav>
+              const navLink = (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  aria-label={item.label}
+                  className={cn(
+                    "flex h-10 items-center rounded-lg text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                    isActive && "bg-muted text-foreground",
+                    isCollapsed ? "justify-center px-0" : "gap-3 px-3",
+                  )}
+                >
+                  <item.icon className="size-4 shrink-0" aria-hidden="true" />
+                  {!isCollapsed ? (
+                    item.label
+                  ) : (
+                    <span className="sr-only">{item.label}</span>
+                  )}
+                </Link>
+              );
+
+              if (!isCollapsed) {
+                return navLink;
+              }
+
+              return (
+                <Tooltip key={item.label}>
+                  <TooltipTrigger asChild>{navLink}</TooltipTrigger>
+                  <TooltipContent
+                    side="right"
+                    align="center"
+                    className="rounded-xl px-3 py-2 text-sm shadow-lg"
+                  >
+                    {item.label}
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </nav>
+        </TooltipProvider>
 
         {!isCollapsed ? (
           <p className="mt-auto px-2 pt-6 text-xs leading-5 text-muted-foreground">

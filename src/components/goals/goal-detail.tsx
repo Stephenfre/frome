@@ -2,14 +2,16 @@
 
 import { useMutation, useQuery } from "convex/react";
 import {
+  Archive,
   CheckCircle2,
   CirclePause,
   FolderPlus,
   Pencil,
   Target,
-  Archive,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { GoalForm } from "@/components/goals/goal-form";
@@ -21,6 +23,17 @@ import {
   getGoalProgressClassName,
   getGoalStatusClassName,
 } from "@/components/goals/goals-utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -34,12 +47,15 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 
 export function GoalDetail({ goalId }: { goalId: Id<"goals"> }) {
+  const router = useRouter();
   const goal = useQuery(api.goals.getGoalById, { goalId });
   const pauseGoal = useMutation(api.goals.pauseGoal);
   const completeGoal = useMutation(api.goals.completeGoal);
   const archiveGoal = useMutation(api.goals.archiveGoal);
+  const deleteGoal = useMutation(api.goals.deleteGoal);
   const [isGoalFormVisible, setIsGoalFormVisible] = useState(false);
   const [isProjectFormVisible, setIsProjectFormVisible] = useState(false);
+  const [isDeletingGoal, setIsDeletingGoal] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,6 +83,27 @@ export function GoalDetail({ goalId }: { goalId: Id<"goals"> }) {
       );
     } finally {
       setIsUpdatingStatus(false);
+    }
+  }
+
+  async function handleDeleteGoal() {
+    if (isDeletingGoal) {
+      return;
+    }
+
+    setError(null);
+    setIsDeletingGoal(true);
+
+    try {
+      await deleteGoal({ goalId });
+      router.push("/dashboard/goals");
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Could not delete the goal. Try again.",
+      );
+      setIsDeletingGoal(false);
     }
   }
 
@@ -148,6 +185,38 @@ export function GoalDetail({ goalId }: { goalId: Id<"goals"> }) {
               Archive
             </Button>
           ) : null}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isDeletingGoal}
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2 className="size-3.5" aria-hidden="true" />
+                Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete goal?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Delete &quot;{goal.title}&quot; and all of its projects and next
+                  actions? This can&apos;t be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteGoal}
+                  disabled={isDeletingGoal}
+                >
+                  {isDeletingGoal ? "Deleting..." : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </section>
 

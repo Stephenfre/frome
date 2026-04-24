@@ -17,6 +17,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   formatDayLabel,
+  formatEventTimeRange,
   getDayContext,
   getEventTypeLabel,
   getTypeBadgeClassName,
@@ -217,10 +218,7 @@ function TodayPlanEventRow({ event }: { event: EventView }) {
   const [now, setNow] = useState<number | null>(null);
   const eventEndTime = Date.parse(event.endAt ?? event.startAt);
   const isPast = now !== null && !Number.isNaN(eventEndTime) && eventEndTime <= now;
-  const timeLabel = new Intl.DateTimeFormat(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(event.startAt));
+  const timeLabel = formatEventTimeRange(event);
 
   useEffect(() => {
     const updateNow = () => {

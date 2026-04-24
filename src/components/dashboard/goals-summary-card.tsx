@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { AlertCircle, ArrowRight, Goal } from "lucide-react";
 import Link from "next/link";
 
+import { AIBreakdownButton } from "@/components/goals/ai-breakdown-button";
 import { Badge } from "@/components/shared/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,9 +57,10 @@ export function GoalsSummaryCard() {
 
             <div className="grid gap-2">
               {summary.goals.slice(0, 3).map((goal) => (
-                <div
+                <Link
                   key={goal._id}
-                  className="flex items-center justify-between gap-3 rounded-lg border bg-background px-3 py-2"
+                  href={`/dashboard/goals/${goal._id}`}
+                  className="flex items-center justify-between gap-3 rounded-lg border bg-background px-3 py-2 transition-colors hover:bg-muted/30"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{goal.title}</p>
@@ -72,13 +74,18 @@ export function GoalsSummaryCard() {
                       aria-hidden="true"
                     />
                   ) : null}
-                </div>
+                </Link>
               ))}
             </div>
           </>
         )}
 
-        <div className="flex justify-end">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <AIBreakdownButton
+            label="AI breakdown"
+            size="sm"
+            variant="outline"
+          />
           <Button asChild variant="ghost" size="sm">
             <Link href="/dashboard/goals">
               Open goals

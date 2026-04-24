@@ -47,6 +47,14 @@ const goalHorizonValidator = v.union(
   v.literal("quarterly"),
 );
 
+const estimatedMinutesValidator = v.union(
+  v.literal(2),
+  v.literal(5),
+  v.literal(10),
+  v.literal(15),
+  v.literal(30),
+);
+
 export type {
   GoalCategory,
   GoalDashboardSummary,
@@ -103,6 +111,26 @@ function normalizeGoalStatus(status?: GoalStatus | null) {
 
 function normalizeDateValue(value?: number | null) {
   return value ?? undefined;
+}
+
+function deriveGoalHorizon(targetDate?: number | null): GoalHorizon {
+  if (!targetDate) {
+    return "monthly";
+  }
+
+  const daysUntilTarget = Math.ceil(
+    (targetDate - Date.now()) / (24 * 60 * 60 * 1000),
+  );
+
+  if (daysUntilTarget <= 14) {
+    return "weekly";
+  }
+
+  if (daysUntilTarget <= 90) {
+    return "monthly";
+  }
+
+  return "quarterly";
 }
 
 export const listGoals = query({
@@ -348,6 +376,95 @@ export const updateGoal = mutation({
   },
 });
 
+export const createGoalFromBreakdown = mutation({
+  args: {
+    goalTitle: v.string(),
+    goalCategory: goalCategoryValidator,
+    projects: v.array(
+      v.object({
+        title: v.string(),
+        nextActions: v.array(
+          v.object({
+            estimatedMinutes: estimatedMinutesValidator,
+            title: v.string(),
+          }),
+        ),
+      }),
+    ),
+    summary: v.optional(v.union(v.string(), v.null())),
+    targetDate: v.optional(v.union(v.number(), v.null())),
+  },
+  handler: async (ctx, args) => {
+    const user = await getOrCreateCurrentUser(ctx);
+
+    if ((await countActiveGoalsForUser(ctx, user._id)) >= 3) {
+      throw new Error("Keep active goals to 1-3. Pause or archive one before adding another.");
+    }
+
+    const goalTitle = normalizeGoalTitle(args.goalTitle);
+    const projects = args.projects
+      .map((project) => ({
+        nextActions: project.nextActions
+          .map((nextAction) => ({
+            estimatedMinutes: nextAction.estimatedMinutes,
+            title: nextAction.title.trim(),
+          }))
+          .filter((nextAction) => nextAction.title.length > 0)
+          .slice(0, 3),
+        title: project.title.trim(),
+      }))
+      .filter((project) => project.title.length > 0)
+      .slice(0, 5);
+
+    if (projects.length === 0) {
+      throw new Error("Keep at least one project before saving.");
+    }
+
+    const now = Date.now();
+    const targetDate = normalizeDateValue(args.targetDate);
+    const goalId = await ctx.db.insert("goals", {
+      userId: user._id,
+      title: goalTitle,
+      description: trimOptionalString(args.summary),
+      category: args.goalCategory,
+      status: "active",
+      horizon: deriveGoalHorizon(targetDate),
+      startDate: undefined,
+      targetDate,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    for (const [projectIndex, project] of projects.entries()) {
+      const projectId = await ctx.db.insert("goalProjects", {
+        userId: user._id,
+        goalId,
+        title: project.title,
+        description: undefined,
+        status: "active",
+        order: projectIndex,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      for (const nextAction of project.nextActions) {
+        await ctx.db.insert("projectNextActions", {
+          userId: user._id,
+          projectId,
+          title: nextAction.title,
+          status: "todo",
+          estimatedMinutes: nextAction.estimatedMinutes,
+          notes: undefined,
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
+    }
+
+    return goalId;
+  },
+});
+
 export const archiveGoal = mutation({
   args: {
     goalId: v.id("goals"),
@@ -394,6 +511,52 @@ export const completeGoal = mutation({
       status: "completed",
       updatedAt: Date.now(),
     });
+
+    return goal._id;
+  },
+});
+
+export const deleteGoal = mutation({
+  args: {
+    goalId: v.id("goals"),
+  },
+  handler: async (ctx, args) => {
+    const user = await getOrCreateCurrentUser(ctx);
+    const goal = await requireOwnedGoal(ctx, user._id, args.goalId);
+
+    const projects = await ctx.db
+      .query("goalProjects")
+      .withIndex("by_goal", (q) => q.eq("goalId", goal._id))
+      .collect();
+    const ownedProjects = projects.filter((project) => project.userId === user._id);
+
+    for (const project of ownedProjects) {
+      const nextActions = await ctx.db
+        .query("projectNextActions")
+        .withIndex("by_project", (q) => q.eq("projectId", project._id))
+        .collect();
+
+      for (const nextAction of nextActions) {
+        if (nextAction.userId === user._id) {
+          await ctx.db.delete(nextAction._id);
+        }
+      }
+
+      await ctx.db.delete(project._id);
+    }
+
+    const reviews = await ctx.db
+      .query("goalReviews")
+      .withIndex("by_goal", (q) => q.eq("goalId", goal._id))
+      .collect();
+
+    for (const review of reviews) {
+      if (review.userId === user._id) {
+        await ctx.db.delete(review._id);
+      }
+    }
+
+    await ctx.db.delete(goal._id);
 
     return goal._id;
   },

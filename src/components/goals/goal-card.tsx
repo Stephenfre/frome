@@ -1,7 +1,15 @@
 "use client";
 
-import { AlertCircle, ArrowRight, CheckCircle2, FolderKanban } from "lucide-react";
+import { useMutation } from "convex/react";
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  FolderKanban,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 import {
   formatGoalCategory,
@@ -9,11 +17,40 @@ import {
   getGoalProgressClassName,
   getGoalStatusClassName,
 } from "@/components/goals/goals-utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { api } from "@convex/_generated/api";
 import type { GoalView } from "@convex/goals";
 
 export function GoalCard({ goal }: { goal: GoalView }) {
+  const deleteGoal = useMutation(api.goals.deleteGoal);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (isDeleting) {
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      await deleteGoal({ goalId: goal._id });
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
   return (
     <div className="grid gap-4 rounded-xl border bg-background p-4">
       <div className="flex items-start justify-between gap-3">
@@ -90,7 +127,36 @@ export function GoalCard({ goal }: { goal: GoalView }) {
         </div>
       ) : null}
 
-      <div className="flex justify-end">
+      <div className="flex items-center justify-end gap-2">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              disabled={isDeleting}
+              aria-label={`Delete ${goal.title}`}
+              className="text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 className="size-3.5" aria-hidden="true" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete goal?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Delete &quot;{goal.title}&quot; and all of its projects and next
+                actions? This can&apos;t be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                {isDeleting ? "Deleting..." : "Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         <Button asChild variant="ghost" size="sm">
           <Link href={`/dashboard/goals/${goal._id}`}>
             View goal

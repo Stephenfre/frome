@@ -32,6 +32,7 @@ import type { GoalProjectView } from "@convex/goalProjects";
 
 export function ProjectCard({ project }: { project: GoalProjectView }) {
   const completeProject = useMutation(api.goalProjects.completeProject);
+  const deleteProject = useMutation(api.goalProjects.deleteProject);
   const completeNextAction = useMutation(api.projectNextActions.completeNextAction);
   const deleteNextAction = useMutation(api.projectNextActions.deleteNextAction);
   const nextActions = useQuery(api.projectNextActions.listProjectNextActions, {
@@ -42,6 +43,7 @@ export function ProjectCard({ project }: { project: GoalProjectView }) {
   const [editingNextActionId, setEditingNextActionId] =
     useState<Id<"projectNextActions"> | null>(null);
   const [isCompletingProject, setIsCompletingProject] = useState(false);
+  const [isDeletingProject, setIsDeletingProject] = useState(false);
   const [isCompletingNextAction, setIsCompletingNextAction] = useState(false);
   const [deletingNextActionId, setDeletingNextActionId] =
     useState<Id<"projectNextActions"> | null>(null);
@@ -80,6 +82,23 @@ export function ProjectCard({ project }: { project: GoalProjectView }) {
       setError("Could not complete the next action. Try again.");
     } finally {
       setIsCompletingNextAction(false);
+    }
+  }
+
+  async function handleDeleteProject() {
+    if (isDeletingProject) {
+      return;
+    }
+
+    setError(null);
+    setIsDeletingProject(true);
+
+    try {
+      await deleteProject({ projectId: project._id });
+    } catch {
+      setError("Could not delete the project. Try again.");
+    } finally {
+      setIsDeletingProject(false);
     }
   }
 
@@ -166,6 +185,38 @@ export function ProjectCard({ project }: { project: GoalProjectView }) {
                   Complete
                 </Button>
               ) : null}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    disabled={isDeletingProject}
+                    aria-label={`Delete ${project.title}`}
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 className="size-3.5" aria-hidden="true" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete project?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Delete &quot;{project.title}&quot; and all of its steps? This
+                      can&apos;t be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteProject}
+                      disabled={isDeletingProject}
+                    >
+                      {isDeletingProject ? "Deleting..." : "Delete"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
 

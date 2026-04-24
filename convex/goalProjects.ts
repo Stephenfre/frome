@@ -129,3 +129,36 @@ export const completeProject = mutation({
     return project._id;
   },
 });
+
+export const deleteProject = mutation({
+  args: {
+    projectId: v.id("goalProjects"),
+  },
+  handler: async (ctx, args) => {
+    const user = await getOrCreateCurrentUser(ctx);
+    const project = await requireOwnedProject(ctx, user._id, args.projectId);
+    const now = Date.now();
+
+    while (true) {
+      const nextActions = await ctx.db
+        .query("projectNextActions")
+        .withIndex("by_project", (q) => q.eq("projectId", project._id))
+        .take(100);
+
+      if (nextActions.length === 0) {
+        break;
+      }
+
+      for (const nextAction of nextActions) {
+        await ctx.db.delete(nextAction._id);
+      }
+    }
+
+    await ctx.db.delete(project._id);
+    await ctx.db.patch(project.goalId, {
+      updatedAt: now,
+    });
+
+    return project._id;
+  },
+});

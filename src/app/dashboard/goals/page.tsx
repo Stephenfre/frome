@@ -10,6 +10,7 @@ import {
 import { Goal, Plus, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { AIBreakdownButton } from "@/components/goals/ai-breakdown-button";
 import { GoalCreationFlow } from "@/components/goals/goal-creation-flow";
 import { GoalExampleTabs } from "@/components/goals/goal-example-tabs";
 import { GoalsList } from "@/components/goals/goals-list";
@@ -70,6 +71,7 @@ function AuthenticatedGoalsPage() {
           <h1 className="mt-1 text-3xl font-semibold tracking-normal">Goals</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <AIBreakdownButton />
           <Sheet>
             <SheetTrigger asChild>
               <Button type="button" variant="outline" size="sm">
