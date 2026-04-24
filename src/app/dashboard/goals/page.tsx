@@ -7,18 +7,11 @@ import {
   Unauthenticated,
   useQuery,
 } from "convex/react";
-import {
-  CalendarDays,
-  CheckSquare,
-  FolderKanban,
-  Goal,
-  Plus,
-  Rows3,
-  X,
-} from "lucide-react";
+import { Goal, Plus, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { GoalCreationFlow } from "@/components/goals/goal-creation-flow";
+import { GoalExampleTabs } from "@/components/goals/goal-example-tabs";
 import { GoalsList } from "@/components/goals/goals-list";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,54 +30,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { api } from "@convex/_generated/api";
-
-const goalsPlanningModel = [
-  {
-    title: "Keep goals few and concrete",
-    description:
-      "Run only 1-3 active goals at a time. Use specific outcomes like 'Submit 5 job applications this week' instead of vague aspirations.",
-    icon: Goal,
-  },
-  {
-    title: "Turn each goal into projects",
-    description:
-      "A goal is an outcome. Projects are the weekly containers that explain what this goal means in real life.",
-    icon: FolderKanban,
-  },
-  {
-    title: "Give every project one visible next action",
-    description:
-      "Do not let a project stay abstract. Replace 'resume' with something startable like 'rewrite Phoenix Suns bullet'.",
-    icon: CheckSquare,
-  },
-  {
-    title: "Protect important steps with time",
-    description:
-      "A task list holds possibilities. The calendar protects execution when a step needs real time.",
-    icon: CalendarDays,
-  },
-] as const;
-
-const exampleGoalBreakdowns = [
-  {
-    goal: "Get a new software job",
-    project: "Resume refresh",
-    nextAction: "Open resume doc",
-    scheduledBlock: "Tuesday 10:00-10:20 AM",
-  },
-  {
-    goal: "Pay all bills on time this month",
-    project: "April finances",
-    nextAction: "Call credit card company",
-    scheduledBlock: "Tuesday 1:00-1:15 PM",
-  },
-  {
-    goal: "Go to the gym 3 times a week",
-    project: "Gym routine",
-    nextAction: "Put gym shoes by door",
-    scheduledBlock: "Wednesday 6:00 PM",
-  },
-] as const;
 
 export default function GoalsPage() {
   return (
@@ -135,12 +80,12 @@ function AuthenticatedGoalsPage() {
               <SheetHeader>
                 <SheetTitle>How to Create Goals</SheetTitle>
                 <SheetDescription>
-                  Keep goals concrete, break them down fast, and never leave the
-                  next step vague.
+                  Example-first walkthrough for turning a vague goal into a clear
+                  plan you can actually follow.
                 </SheetDescription>
               </SheetHeader>
               <div className="overflow-y-auto px-6 pb-6">
-                <GoalsExampleGuidance />
+                <GoalExampleTabs />
               </div>
             </SheetContent>
           </Sheet>
@@ -200,114 +145,6 @@ function AuthenticatedGoalsPage() {
           />
         </div>
       )}
-    </div>
-  );
-}
-
-function GoalsExampleGuidance() {
-  return (
-    <div className="grid gap-5">
-      <div className="grid gap-2 rounded-xl border bg-muted/15 p-4">
-        <p className="text-xs font-medium tracking-[0.12em] text-muted-foreground uppercase">
-          Lowest-Friction Model
-        </p>
-        <h2 className="text-lg font-semibold">
-          Goals should not stay abstract for long.
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          For ADHD planning, the best system is usually:
-        </p>
-        <div className="flex flex-wrap items-center gap-2 text-sm font-medium">
-          <span className="rounded-md border bg-background px-2.5 py-1">
-            Goal
-          </span>
-          <span className="text-muted-foreground">→</span>
-          <span className="rounded-md border bg-background px-2.5 py-1">
-            Project
-          </span>
-          <span className="text-muted-foreground">→</span>
-          <span className="rounded-md border bg-background px-2.5 py-1">
-            Next Action
-          </span>
-          <span className="text-muted-foreground">→</span>
-          <span className="rounded-md border bg-background px-2.5 py-1">
-            Scheduled Block
-          </span>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Never ask the brain to remember the plan. Make the plan visible, make
-          the next step tiny, and give important steps a time.
-        </p>
-      </div>
-
-      <div className="grid gap-3">
-        {goalsPlanningModel.map((item) => (
-          <div
-            key={item.title}
-            className="grid gap-2 rounded-lg border bg-background px-4 py-3"
-          >
-            <div className="flex items-center gap-2">
-              <item.icon
-                className="size-4 text-muted-foreground"
-                aria-hidden="true"
-              />
-              <h3 className="text-sm font-semibold">{item.title}</h3>
-            </div>
-            <p className="text-sm text-muted-foreground">{item.description}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid gap-3 rounded-xl border border-dashed bg-muted/10 p-4">
-        <div>
-          <p className="text-xs font-medium tracking-[0.12em] text-muted-foreground uppercase">
-            Examples
-          </p>
-          <h3 className="mt-1 text-lg font-semibold">
-            What good goal breakdowns look like
-          </h3>
-        </div>
-        <div className="grid gap-3">
-          {exampleGoalBreakdowns.map((example) => (
-            <div
-              key={`${example.goal}-${example.project}`}
-              className="grid gap-2 rounded-lg border bg-background px-4 py-3"
-            >
-              <div className="grid gap-1 text-sm">
-                <p>
-                  <span className="font-medium">Goal:</span> {example.goal}
-                </p>
-                <p>
-                  <span className="font-medium">Project:</span>{" "}
-                  {example.project}
-                </p>
-                <p>
-                  <span className="font-medium">Next action:</span>{" "}
-                  {example.nextAction}
-                </p>
-                <p>
-                  <span className="font-medium">Scheduled block:</span>{" "}
-                  {example.scheduledBlock}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid gap-3 rounded-xl border bg-background p-4">
-        <div className="flex items-center gap-2">
-          <Rows3 className="size-4 text-muted-foreground" aria-hidden="true" />
-          <h3 className="text-sm font-semibold">Simple rules</h3>
-        </div>
-        <ul className="grid gap-2 text-sm text-muted-foreground">
-          <li>Only keep 1-3 active goals at a time.</li>
-          <li>Every project should always have one visible next action.</li>
-          <li>Make next actions small enough to start in 2-10 minutes.</li>
-          <li>Use daily and weekly reviews instead of giant future piles.</li>
-          <li>Schedule only the steps that need real protection.</li>
-        </ul>
-      </div>
     </div>
   );
 }
