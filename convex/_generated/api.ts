@@ -8,12 +8,16 @@
  * @module
  */
 
+import type * as dailyBriefGeneration from "../dailyBriefGeneration.js";
 import type * as dailyBriefs from "../dailyBriefs.js";
 import type * as dashboard from "../dashboard.js";
 import type * as events from "../events.js";
+import type * as gmailActions from "../gmailActions.js";
+import type * as gmailConnections from "../gmailConnections.js";
 import type * as goalProjects from "../goalProjects.js";
 import type * as goals from "../goals.js";
 import type * as goalsHelpers from "../goalsHelpers.js";
+import type * as planDay from "../planDay.js";
 import type * as projectNextActions from "../projectNextActions.js";
 import type * as projects from "../projects.js";
 import type * as taskGroups from "../taskGroups.js";
@@ -28,12 +32,16 @@ import type {
 import { anyApi, componentsGeneric } from "convex/server";
 
 const fullApi: ApiFromModules<{
+  dailyBriefGeneration: typeof dailyBriefGeneration;
   dailyBriefs: typeof dailyBriefs;
   dashboard: typeof dashboard;
   events: typeof events;
+  gmailActions: typeof gmailActions;
+  gmailConnections: typeof gmailConnections;
   goalProjects: typeof goalProjects;
   goals: typeof goals;
   goalsHelpers: typeof goalsHelpers;
+  planDay: typeof planDay;
   projectNextActions: typeof projectNextActions;
   projects: typeof projects;
   taskGroups: typeof taskGroups;

@@ -149,12 +149,37 @@ export default defineSchema({
     userId: v.id("users"),
     date: v.string(),
     summary: v.optional(v.string()),
-    highlights: v.array(
+    topPriorities: v.optional(v.array(v.string())),
+    warning: v.optional(v.string()),
+    suggestion: v.optional(v.string()),
+    emailSummary: v.optional(
       v.object({
-        title: v.string(),
-        body: v.string(),
+        summary: v.string(),
+        importantCount: v.number(),
+        ignoreCount: v.number(),
+        items: v.array(
+          v.object({
+            id: v.string(),
+            subject: v.string(),
+            from: v.string(),
+            reason: v.string(),
+            category: v.string(),
+            priority: v.string(),
+            suggestedAction: v.optional(v.string()),
+          }),
+        ),
       }),
     ),
+    highlights: v.optional(
+      v.array(
+        v.object({
+          title: v.string(),
+          body: v.string(),
+        }),
+      ),
+    ),
+    generatedAt: v.optional(v.number()),
+    model: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -223,4 +248,20 @@ export default defineSchema({
     .index("by_goal", ["goalId"])
     .index("by_user_and_goal", ["userId", "goalId"])
     .index("by_user_and_goal_and_review_type", ["userId", "goalId", "reviewType"]),
+
+  gmailConnections: defineTable({
+    userId: v.id("users"),
+    provider: v.literal("google"),
+    googleEmail: v.optional(v.string()),
+    googleUserId: v.optional(v.string()),
+    encryptedAccessToken: v.optional(v.string()),
+    encryptedRefreshToken: v.optional(v.string()),
+    scope: v.string(),
+    tokenExpiryDate: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    isActive: v.boolean(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_provider", ["userId", "provider"]),
 });

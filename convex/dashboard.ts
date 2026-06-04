@@ -3,15 +3,17 @@ import { v } from "convex/values";
 import { api } from "./_generated/api";
 import { query } from "./_generated/server";
 import type { EventView } from "./events";
+import type { GoalView } from "./goals";
 import type { TaskView } from "./tasks";
 
 export type DashboardSnapshot = {
   tasks: TaskView[];
   events: EventView[];
-  brief: {
+  goals: GoalView[];
+  counts: {
+    activeGoalCount: number;
     openTaskCount: number;
     eventCount: number;
-    summary: string;
     isEmpty: boolean;
   };
 };
@@ -31,34 +33,22 @@ export const getDashboardSnapshot = query({
       endOfDay: args.endOfDay,
       weekday: args.weekday,
     });
+    const goals: GoalView[] = await ctx.runQuery(api.goals.listActiveGoals, {});
 
     const openTaskCount = tasks.length;
     const eventCount = events.length;
-    const isEmpty = openTaskCount === 0 && eventCount === 0;
-
-    let summary =
-      `You have ${eventCount} ${eventCount === 1 ? "event" : "events"} and ` +
-      `${openTaskCount} open ${openTaskCount === 1 ? "task" : "tasks"} today. ` +
-      "Focus on your highest priority task before noon.";
-
-    if (isEmpty) {
-      summary =
-        "Your day is open. Add one task or event to shape the day before it fills itself.";
-    } else if (openTaskCount === 0 && eventCount > 0) {
-      summary =
-        `You have ${eventCount} ${eventCount === 1 ? "event" : "events"} and no open tasks today. Protect a little buffer time between commitments.`;
-    } else if (openTaskCount > 0 && eventCount === 0) {
-      summary =
-        `You have ${openTaskCount} open ${openTaskCount === 1 ? "task" : "tasks"} and no events today. Use the open space to finish your highest priority task early.`;
-    }
+    const activeGoalCount = goals.length;
+    const isEmpty =
+      openTaskCount === 0 && eventCount === 0 && activeGoalCount === 0;
 
     return {
       tasks,
       events,
-      brief: {
+      goals,
+      counts: {
+        activeGoalCount,
         openTaskCount,
         eventCount,
-        summary,
         isEmpty,
       },
     };

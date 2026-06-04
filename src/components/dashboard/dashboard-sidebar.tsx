@@ -8,6 +8,7 @@ import {
   Home,
   PanelLeftClose,
   PanelLeftOpen,
+  PlugZap,
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
@@ -30,6 +31,7 @@ const navItems = [
   { label: "Calendar", href: "/dashboard/events", icon: CalendarDays },
   { label: "Money", href: "/dashboard", icon: CircleDollarSign },
   { label: "Goals", href: "/dashboard/goals", icon: Goal },
+  { label: "Integrations", href: "/dashboard/settings/integrations", icon: PlugZap },
 ];
 
 export function DashboardSidebar({

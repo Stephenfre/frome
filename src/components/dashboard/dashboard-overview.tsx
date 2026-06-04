@@ -6,6 +6,7 @@ import { CircleDollarSign } from "lucide-react";
 
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { DailyBriefCard } from "@/components/dashboard/daily-brief-card";
+import { EmailCard } from "@/components/dashboard/email-card";
 import { GoalsSummaryCard } from "@/components/dashboard/goals-summary-card";
 import { TasksCard } from "@/components/dashboard/tasks-card";
 import { TodayPlanCard } from "@/components/dashboard/today-plan-card";
@@ -51,6 +52,7 @@ function AuthenticatedDashboardOverview() {
         <DailyBriefCard />
         <TasksCard />
         <TodayPlanCard />
+        <EmailCard />
         <GoalsSummaryCard />
         <DashboardCard
           title="Money"
@@ -78,6 +80,7 @@ function DashboardLoadingState() {
       </section>
       <section className="grid items-start gap-4 lg:grid-cols-2">
         <div className="h-64 rounded-lg border bg-background lg:col-span-2" />
+        <div className="h-64 rounded-lg border bg-background" />
         <div className="h-64 rounded-lg border bg-background" />
         <div className="h-96 rounded-lg border bg-background" />
         <div className="h-40 rounded-lg border bg-background" />
